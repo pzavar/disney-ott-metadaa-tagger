@@ -13,28 +13,60 @@ const ContentLibrary: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [contentType, setContentType] = useState("all");
   const [filterOpen, setFilterOpen] = useState(false);
+  
+  // Advanced filter states
+  const [filters, setFilters] = useState({
+    yearFrom: "",
+    yearTo: "",
+    brand: "all",
+    availability: "all",
+    category: "all"
+  });
 
   const { data: content, isLoading } = useQuery<Content[]>({
     queryKey: ["/api/content"],
   });
 
-  // Filter content based on search query and content type
+  // Filter content based on search query, content type, and advanced filters
   const filteredContent = content
     ? content.filter((item) => {
+        // Match search query in title, brand tags, or category tags
         const matchesSearch =
           searchQuery === "" ||
           item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.tags.brand.some((tag) =>
+          item.tags?.brand?.some((tag) =>
             tag.toLowerCase().includes(searchQuery.toLowerCase())
           ) ||
-          item.tags.category.some((tag) =>
+          item.tags?.category?.some((tag) =>
             tag.toLowerCase().includes(searchQuery.toLowerCase())
           );
 
+        // Match content type filter
         const matchesType =
           contentType === "all" || item.type === contentType;
+          
+        // Match year range filter
+        const matchesYearRange = 
+          (filters.yearFrom === "" || Number(item.releaseYear) >= Number(filters.yearFrom)) &&
+          (filters.yearTo === "" || Number(item.releaseYear) <= Number(filters.yearTo));
+          
+        // Match brand filter
+        const matchesBrand = 
+          filters.brand === "all" || 
+          item.tags?.brand?.some(tag => tag.toLowerCase() === filters.brand.toLowerCase());
+          
+        // Match availability filter
+        const matchesAvailability = 
+          filters.availability === "all" || 
+          item.tags?.availability?.some(tag => tag.toLowerCase() === filters.availability.toLowerCase());
+          
+        // Match category filter
+        const matchesCategory = 
+          filters.category === "all" || 
+          item.tags?.category?.some(tag => tag.toLowerCase() === filters.category.toLowerCase());
 
-        return matchesSearch && matchesType;
+        return matchesSearch && matchesType && matchesYearRange && 
+               matchesBrand && matchesAvailability && matchesCategory;
       })
     : [];
 
@@ -128,15 +160,30 @@ const ContentLibrary: React.FC = () => {
                     Release Year
                   </label>
                   <div className="flex space-x-2">
-                    <Input type="number" placeholder="From" className="w-full" />
-                    <Input type="number" placeholder="To" className="w-full" />
+                    <Input 
+                      type="number" 
+                      placeholder="From" 
+                      className="w-full"
+                      value={filters.yearFrom}
+                      onChange={(e) => setFilters({...filters, yearFrom: e.target.value})}
+                    />
+                    <Input 
+                      type="number" 
+                      placeholder="To" 
+                      className="w-full"
+                      value={filters.yearTo}
+                      onChange={(e) => setFilters({...filters, yearTo: e.target.value})}
+                    />
                   </div>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
                     Brand
                   </label>
-                  <Select>
+                  <Select 
+                    value={filters.brand}
+                    onValueChange={(value) => setFilters({...filters, brand: value})}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="All Brands" />
                     </SelectTrigger>
@@ -156,7 +203,10 @@ const ContentLibrary: React.FC = () => {
                   <label className="block text-xs font-medium text-gray-700 mb-1">
                     Availability
                   </label>
-                  <Select>
+                  <Select
+                    value={filters.availability}
+                    onValueChange={(value) => setFilters({...filters, availability: value})}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="All Status" />
                     </SelectTrigger>
@@ -170,10 +220,32 @@ const ContentLibrary: React.FC = () => {
                 </div>
               </div>
               <div className="mt-4 flex justify-end space-x-2">
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    // Reset all filters to default values
+                    setFilters({
+                      yearFrom: "",
+                      yearTo: "",
+                      brand: "all",
+                      availability: "all",
+                      category: "all"
+                    });
+                  }}
+                >
                   Reset Filters
                 </Button>
-                <Button size="sm">Apply Filters</Button>
+                <Button 
+                  size="sm"
+                  onClick={() => {
+                    // Apply filters is automatic since we're filtering reactively
+                    // Just close the filter panel
+                    setFilterOpen(false);
+                  }}
+                >
+                  Apply Filters
+                </Button>
               </div>
             </div>
           )}
@@ -217,14 +289,14 @@ const ContentLibrary: React.FC = () => {
                           {item.type.charAt(0).toUpperCase() + item.type.slice(1)} • {item.releaseYear}
                         </p>
                         <div className="mt-2 flex flex-wrap gap-1">
-                          {item.tags.brand[0] && (
+                          {item.tags?.brand?.[0] && (
                             <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                              {item.tags.brand[0]}
+                              {item.tags?.brand?.[0]}
                             </span>
                           )}
-                          {item.tags.category[0] && (
+                          {item.tags?.category?.[0] && (
                             <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">
-                              {item.tags.category[0]}
+                              {item.tags?.category?.[0]}
                             </span>
                           )}
                         </div>
