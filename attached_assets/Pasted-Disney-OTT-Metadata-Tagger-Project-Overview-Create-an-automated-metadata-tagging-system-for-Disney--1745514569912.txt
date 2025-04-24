@@ -1,0 +1,140 @@
+Disney+ OTT Metadata Tagger
+Project Overview
+Create an automated metadata-tagging system for Disney+ content that uses intelligent algorithms to generate availability and brand tags for 500+ titles. This prototype demonstrates how machine learning and rule-based systems can streamline content categorization for OTT platforms.
+Tech Stack
+
+Frontend: React with Tailwind CSS
+Backend: Node.js & Express
+Database: MongoDB (via MongoDB Atlas)
+Deployment: Replit
+
+Features to Implement
+
+Auto-tagging Engine:
+
+Availability status detection (New Arrival, Leaving Soon, Exclusive)
+Brand association (Disney, Marvel, Star Wars, Pixar, National Geographic)
+Content category classification (Family, Action, Documentary)
+
+
+Management Dashboard:
+
+Visual interface to review and edit auto-generated tags
+Batch processing capabilities
+Tag confidence metrics
+
+
+API Services:
+
+RESTful endpoints for tag generation
+Metadata management
+Content search and filtering
+
+
+
+Getting Started
+1. Initial Setup
+bash# Clone this template
+# Set up environment variables in Replit Secrets:
+# - MONGODB_URI
+# - PORT (if needed)
+# - API_KEY (for security)
+
+3. Development Workflow
+
+Start with sample data in JSON format for 50-100 Disney+ titles
+Implement basic tagging algorithms based on title attributes
+Create MongoDB schemas for content and tags
+Build RESTful API endpoints
+Develop React components for the dashboard
+Implement more sophisticated tagging logic
+Add authentication for the admin dashboard
+Deploy and test with the full dataset
+
+4. Data Model
+javascript// Example Content Schema
+const ContentSchema = {
+  title: String,
+  type: String,  // Movie, Series, Short
+  releaseYear: Number,
+  addedDate: Date,
+  expiryDate: Date,
+  studio: String,
+  franchises: [String],
+  genres: [String],
+  tags: {
+    availability: [String],
+    brand: [String],
+    category: [String],
+    system: [String],  // Auto-generated tags
+    manual: [String]   // Human-edited tags
+  }
+}
+Implementation Hints
+Tagging Algorithm
+Start with rule-based algorithms before moving to ML:
+javascriptfunction generateAvailabilityTags(content) {
+  const tags = [];
+  const now = new Date();
+  const oneMonthAgo = new Date(now.setMonth(now.getMonth() - 1));
+  const oneMonthLater = new Date(now.setMonth(now.getMonth() + 2));
+  
+  if (content.addedDate > oneMonthAgo) {
+    tags.push('New');
+  }
+  
+  if (content.expiryDate && content.expiryDate < oneMonthLater) {
+    tags.push('Leaving Soon');
+  }
+  
+  return tags;
+}
+Brand Detection
+javascriptfunction detectBrand(content) {
+  const brands = [];
+  
+  const brandPatterns = {
+    'Marvel': ['Marvel', 'MCU', 'Avengers'],
+    'Star Wars': ['Star Wars', 'Mandalorian', 'Jedi'],
+    'Pixar': ['Pixar', 'Toy Story', 'Finding'],
+    // Add more patterns
+  };
+  
+  // Check title, studio, and franchises
+  Object.entries(brandPatterns).forEach(([brand, patterns]) => {
+    const contentText = [
+      content.title,
+      content.studio,
+      ...(content.franchises || [])
+    ].join(' ');
+    
+    if (patterns.some(pattern => contentText.includes(pattern))) {
+      brands.push(brand);
+    }
+  });
+  
+  return brands;
+}
+Stretch Goals
+
+Implement machine learning for more accurate tag prediction
+Add sentiment analysis for content descriptions
+Create a recommendation engine based on tags
+Develop a public-facing API for third-party integrations
+Visualize tag distributions and trends
+
+Performance Metrics
+Track these metrics to evaluate your tagging system:
+
+Tag accuracy (compared to human-generated tags)
+Processing time per title
+UI responsiveness
+Database query performance
+
+Resources
+
+Disney+ Content Catalog
+React Documentation
+MongoDB Atlas
+Express.js Guide
+Replit Documentation
