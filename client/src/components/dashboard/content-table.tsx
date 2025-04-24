@@ -93,13 +93,13 @@ const ContentTable: React.FC<ContentTableProps> = ({ content, isLoading }) => {
                           {item.type === "series" && " • 1 Season"}
                         </div>
                         <div className="mt-2 flex flex-wrap gap-1">
-                          {item.tags.brand.slice(0, 1).map((tag, idx) => (
+                          {item.tags?.brand?.slice(0, 1).map((tag, idx) => (
                             <TagBadge key={`brand-${idx}`} tag={tag} type="brand" />
                           ))}
-                          {item.tags.availability.slice(0, 1).map((tag, idx) => (
+                          {item.tags?.availability?.slice(0, 1).map((tag, idx) => (
                             <TagBadge key={`avail-${idx}`} tag={tag} type="availability" />
                           ))}
-                          {item.tags.category.slice(0, 1).map((tag, idx) => (
+                          {item.tags?.category?.slice(0, 1).map((tag, idx) => (
                             <TagBadge key={`cat-${idx}`} tag={tag} type="category" />
                           ))}
                         </div>
@@ -114,6 +114,7 @@ const ContentTable: React.FC<ContentTableProps> = ({ content, isLoading }) => {
                           variant="outline"
                           size="sm"
                           className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0063e5]"
+                          onClick={() => handleViewDetails(item)}
                         >
                           Edit Tags
                         </Button>

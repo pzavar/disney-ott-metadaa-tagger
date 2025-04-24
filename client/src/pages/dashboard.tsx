@@ -34,6 +34,48 @@ const Dashboard: React.FC = () => {
               <Button
                 variant="outline"
                 className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0063e5]"
+                onClick={() => {
+                  // Generate a CSV report from the data
+                  if (!content || !stats) return;
+                  
+                  const headers = ['Title', 'Type', 'Release Year', 'Studio', 'Brand Tags', 'Availability', 'Categories', 'Confidence'];
+                  const rows = content.map(item => [
+                    item.title,
+                    item.type,
+                    item.releaseYear.toString(),
+                    item.studio || '',
+                    item.tags.brand.join(', '),
+                    item.tags.availability.join(', '),
+                    item.tags.category.join(', '),
+                    `${item.confidenceScore}%`
+                  ]);
+                  
+                  // Add summary stats at the top
+                  rows.unshift(['SUMMARY STATS', '', '', '', '', '', '', '']);
+                  rows.unshift(['Total Content', stats.totalContent.toString(), '', '', '', '', '', '']);
+                  rows.unshift(['Tagged Content', stats.taggedContent.toString(), '', '', '', '', '', '']);
+                  rows.unshift(['Pending Review', stats.pendingReview.toString(), '', '', '', '', '', '']);
+                  rows.unshift(['Tagging Accuracy', `${stats.taggingAccuracy}%`, '', '', '', '', '', '']);
+                  rows.unshift(['', '', '', '', '', '', '', '']);
+                  rows.unshift(['CONTENT DETAILS', '', '', '', '', '', '', '']);
+                  
+                  // Convert to CSV
+                  const csvContent = [
+                    headers.join(','),
+                    ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+                  ].join('\n');
+                  
+                  // Create downloadable link
+                  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                  const url = URL.createObjectURL(blob);
+                  const link = document.createElement('a');
+                  link.setAttribute('href', url);
+                  link.setAttribute('download', `disney-ott-report-${new Date().toISOString().split('T')[0]}.csv`);
+                  link.style.visibility = 'hidden';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
               >
                 <PanelTopOpen className="-ml-1 mr-2 h-5 w-5 text-gray-500" />
                 Export Report

@@ -20,9 +20,9 @@ interface TagWithConfidence {
 
 const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ content, open, onClose }) => {
   const [currentTags, setCurrentTags] = useState({
-    brand: content.tags.brand.map((tag) => ({ name: tag, confidence: 97 })),
-    availability: content.tags.availability.map((tag) => ({ name: tag, confidence: 95 })),
-    category: content.tags.category.map((tag) => ({ name: tag, confidence: 90 })),
+    brand: content.tags?.brand?.map((tag) => ({ name: tag, confidence: 97 })) || [],
+    availability: content.tags?.availability?.map((tag) => ({ name: tag, confidence: 95 })) || [],
+    category: content.tags?.category?.map((tag) => ({ name: tag, confidence: 90 })) || [],
   });
 
   const suggestedTags: TagWithConfidence[] = [
@@ -44,8 +44,30 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({ content, open, 
     });
   };
   
-  const handleSave = () => {
-    // Here we would save the updated tags to the server
+  const handleSave = async () => {
+    try {
+      // Save the updated tags to the server
+      const response = await fetch(`/api/content/${content.id}/tags`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(currentTags),
+      });
+      
+      if (response.ok) {
+        // Show success toast or notification
+        console.log('Tags updated successfully');
+        
+        // Invalidate queries to refresh content
+        window.location.reload(); // Simple approach for now
+      } else {
+        console.error('Failed to update tags');
+      }
+    } catch (error) {
+      console.error('Error updating tags:', error);
+    }
+    
     onClose();
   };
 
