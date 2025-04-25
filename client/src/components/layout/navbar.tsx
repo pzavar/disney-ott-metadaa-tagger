@@ -38,12 +38,7 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
                 placeholder="Search by title, genre, or tag"
                 type="search"
                 value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  window.dispatchEvent(
-                    new CustomEvent('search:input', { detail: e.target.value })
-                  );
-                }}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>

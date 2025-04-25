@@ -11,15 +11,6 @@ import { Content } from "@shared/schema";
 const ContentLibrary: React.FC = () => {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Subscribe to navbar search input
-  useEffect(() => {
-    const handleSearch = (e: CustomEvent) => {
-      setSearchQuery(e.detail);
-    };
-    window.addEventListener('search:input', handleSearch as EventListener);
-    return () => window.removeEventListener('search:input', handleSearch as EventListener);
-  }, []);
   const [contentType, setContentType] = useState("all");
   const [filterOpen, setFilterOpen] = useState(false);
   
