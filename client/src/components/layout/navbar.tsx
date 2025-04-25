@@ -9,8 +9,8 @@ interface NavbarProps {
   onToggleSidebar: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ searchQuery, onSearchChange, onToggleSidebar }) => {
-  const [searchQuery, setSearchQuery] = useState("");
+const Navbar: React.FC<NavbarProps> = ({ searchQuery: initialSearchQuery, onSearchChange, onToggleSidebar }) => {
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery || "");
 
   return (
     <div className="relative z-10 flex-shrink-0 flex h-16 bg-white border-b border-gray-200">
@@ -39,8 +39,11 @@ const Navbar: React.FC<NavbarProps> = ({ searchQuery, onSearchChange, onToggleSi
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-[#0063e5] focus:border-[#0063e5] sm:text-sm"
                 placeholder="Search by title, genre, or tag"
                 type="search"
-                value={props.searchQuery}
-                onChange={(e) => props.onSearchChange?.(e.target.value)}
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  onSearchChange?.(e.target.value);
+                }}
               />
             </div>
           </div>
