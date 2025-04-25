@@ -238,7 +238,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  apiRouter.post("/batch", async (req: Request, res: Response) => {
+  apiRouter.post("/content/import", async (req: Request, res: Response) => {
+  try {
+    const contentArray = req.body;
+    
+    if (!Array.isArray(contentArray)) {
+      return res.status(400).json({ message: "Request body must be an array of content items" });
+    }
+
+    const results = [];
+    for (const item of contentArray) {
+      try {
+        const validationResult = insertContentSchema.safeParse(item);
+        if (!validationResult.success) {
+          results.push({
+            title: item.title,
+            success: false,
+            error: "Validation failed"
+          });
+          continue;
+        }
+
+        if (!item.tags || !Object.keys(item.tags).length) {
+          const { tags, confidenceScore } = tagEngine.generateTags(item);
+          item.tags = tags;
+          item.confidenceScore = confidenceScore;
+        }
+
+        const newContent = await storage.createContent(item);
+        results.push({
+          title: item.title,
+          success: true,
+          id: newContent.id
+        });
+      } catch (error) {
+        results.push({
+          title: item.title,
+          success: false,
+          error: "Failed to create content"
+        });
+      }
+    }
+
+    return res.status(200).json({
+      total: contentArray.length,
+      successful: results.filter(r => r.success).length,
+      failed: results.filter(r => !r.success).length,
+      results
+    });
+  } catch (error) {
+    console.error("Error importing content:", error);
+    return res.status(500).json({ message: "Failed to import content" });
+  }
+});
+
+apiRouter.post("/batch", async (req: Request, res: Response) => {
     try {
       // Validate request body
       const batchSchema = z.object({
