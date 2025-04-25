@@ -8,9 +8,14 @@ interface AppLayoutProps {
 
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(''); //Added search state
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
+  };
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
   };
 
   return (
@@ -55,7 +60,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
       {/* Main content */}
       <div className="flex flex-col flex-1 w-0 overflow-hidden">
-        <Navbar onToggleSidebar={toggleSidebar} />
+        <Navbar searchQuery={searchQuery} onSearchChange={handleSearchChange} onToggleSidebar={toggleSidebar} /> {/* Pass search props */}
         <main className="flex-1 relative overflow-y-auto focus:outline-none">
           {children}
         </main>

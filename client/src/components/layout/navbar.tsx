@@ -1,7 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { Menu, Search, Bell, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
+interface NavbarProps {
+  searchQuery?: string;
+  onSearchChange?: (value: string) => void;
+}
 
 interface NavbarProps {
   onToggleSidebar: () => void;
@@ -37,8 +42,8 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-[#0063e5] focus:border-[#0063e5] sm:text-sm"
                 placeholder="Search by title, genre, or tag"
                 type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={props.searchQuery}
+                onChange={(e) => props.onSearchChange?.(e.target.value)}
               />
             </div>
           </div>
