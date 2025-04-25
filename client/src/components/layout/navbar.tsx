@@ -4,13 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 interface NavbarProps {
-  searchQuery?: string;
-  onSearchChange?: (value: string) => void;
   onToggleSidebar: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ searchQuery: initialSearchQuery, onSearchChange, onToggleSidebar }) => {
-  const [searchQuery, setSearchQuery] = useState(initialSearchQuery || "");
+const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
+  const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <div className="relative z-10 flex-shrink-0 flex h-16 bg-white border-b border-gray-200">
@@ -42,7 +40,9 @@ const Navbar: React.FC<NavbarProps> = ({ searchQuery: initialSearchQuery, onSear
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
-                  onSearchChange?.(e.target.value);
+                  window.dispatchEvent(
+                    new CustomEvent('search:input', { detail: e.target.value })
+                  );
                 }}
               />
             </div>

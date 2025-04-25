@@ -7,10 +7,12 @@ interface AppLayoutProps {
   children: React.ReactNode;
 }
 
+interface AppLayoutProps {
+  children: React.ReactNode;
+}
+
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(''); //Added search state
-  const location = useLocation(); // Use useLocation hook
 
 
   const toggleSidebar = () => {
