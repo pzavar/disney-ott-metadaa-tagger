@@ -238,7 +238,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  apiRouter.post("/content/import", async (req: Request, res: Response) => {
+  apiRouter.post("/content/import/tmdb", async (req: Request, res: Response) => {
+  try {
+    const tmdbClient = new TMDBClient(process.env.TMDB_API_KEY!);
+    const page = parseInt(req.query.page as string) || 1;
+    
+    const items = await tmdbClient.searchDisneyContent(page);
+    const results = [];
+
+    for (const item of items) {
+      try {
+        // Generate tags
+        const { tags, confidenceScore } = tagEngine.generateTags(item);
+        item.tags = tags;
+        item.confidenceScore = confidenceScore;
+
+        // Save to storage
+        const newContent = await storage.createContent(item);
+        results.push({
+          title: item.title,
+          success: true,
+          id: newContent.id
+        });
+      } catch (error) {
+        results.push({
+          title: item.title,
+          success: false,
+          error: "Failed to create content"
+        });
+      }
+    }
+
+    return res.status(200).json({
+      total: items.length,
+      successful: results.filter(r => r.success).length,
+      failed: results.filter(r => !r.success).length,
+      results
+    });
+  } catch (error) {
+    console.error("Error importing content:", error);
+    return res.status(500).json({ message: "Failed to import content" });
+  }
+});
+
+apiRouter.post("/content/import", async (req: Request, res: Response) => {
   try {
     const contentArray = req.body;
     
