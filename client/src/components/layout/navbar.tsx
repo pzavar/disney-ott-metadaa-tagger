@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Menu, Search, Bell, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,13 +6,10 @@ import { Input } from "@/components/ui/input";
 interface NavbarProps {
   searchQuery?: string;
   onSearchChange?: (value: string) => void;
-}
-
-interface NavbarProps {
   onToggleSidebar: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
+const Navbar: React.FC<NavbarProps> = ({ searchQuery, onSearchChange, onToggleSidebar }) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
