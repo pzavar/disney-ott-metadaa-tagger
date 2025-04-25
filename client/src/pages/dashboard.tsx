@@ -6,8 +6,11 @@ import StatCard from "@/components/dashboard/stat-card";
 import TagDistributionChart from "@/components/dashboard/tag-distribution-chart";
 import ContentTable from "@/components/dashboard/content-table";
 import { Content } from "@shared/schema";
+import { useSearch } from "@/context/SearchContext";
 
 const Dashboard: React.FC = () => {
+  const { searchQuery } = useSearch();
+  
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["/api/stats"],
   });
@@ -15,6 +18,24 @@ const Dashboard: React.FC = () => {
   const { data: content, isLoading: contentLoading } = useQuery<Content[]>({
     queryKey: ["/api/content/recent"],
   });
+  
+  // Filter content based on search query
+  const filteredContent = React.useMemo(() => {
+    if (!content) return [];
+    if (!searchQuery) return content;
+    
+    const query = searchQuery.toLowerCase();
+    return content.filter((item) => {
+      return (
+        item.title.toLowerCase().includes(query) ||
+        item.type.toLowerCase().includes(query) ||
+        (item.studio && item.studio.toLowerCase().includes(query)) ||
+        (item.tags && item.tags.brand && item.tags.brand.some(tag => tag.toLowerCase().includes(query))) ||
+        (item.tags && item.tags.availability && item.tags.availability.some(tag => tag.toLowerCase().includes(query))) ||
+        (item.tags && item.tags.category && item.tags.category.some(tag => tag.toLowerCase().includes(query)))
+      );
+    });
+  }, [content, searchQuery]);
 
   return (
     <>
@@ -128,7 +149,7 @@ const Dashboard: React.FC = () => {
 
         {/* Recent Content Table */}
         <ContentTable
-          content={content || []}
+          content={filteredContent || []}
           isLoading={contentLoading}
         />
       </div>

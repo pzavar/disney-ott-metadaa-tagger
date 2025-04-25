@@ -3,7 +3,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { SearchProvider } from "@/hooks/use-search";
+import { SearchProvider } from "@/context/SearchContext";
 import Dashboard from "@/pages/dashboard";
 import ContentLibrary from "@/pages/content-library";
 import BatchProcessing from "@/pages/batch-processing";
