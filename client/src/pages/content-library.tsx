@@ -11,6 +11,14 @@ import { Content } from "@shared/schema";
 const ContentLibrary: React.FC = () => {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Subscribe to app-level search changes
+  React.useEffect(() => {
+    const searchElement = document.querySelector('#search') as HTMLInputElement;
+    if (searchElement) {
+      setSearchQuery(searchElement.value);
+    }
+  }, []);
   const [contentType, setContentType] = useState("all");
   const [filterOpen, setFilterOpen] = useState(false);
   
