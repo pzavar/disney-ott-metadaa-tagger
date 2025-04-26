@@ -22,7 +22,7 @@ export const contents = pgTable("contents", {
   id: serial("id").primaryKey(),
   showId: text("show_id"),
   title: text("title").notNull(),
-  type: text("type").notNull(), // Movie, Series, Short
+  type: text("type").notNull(),
   director: text("director"),
   cast: json("cast").$type<string[]>(),
   country: text("country"),

@@ -14,27 +14,27 @@ export class TagEngine {
     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
     const oneMonthLater = new Date(now);
     oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
-    
+
     // Check if content is new
     if (content.addedDate && new Date(content.addedDate) > oneMonthAgo) {
       tags.push('New Arrival');
     }
-    
+
     // Check if content is leaving soon
     if (content.expiryDate && new Date(content.expiryDate) < oneMonthLater) {
       tags.push('Leaving Soon');
     }
-    
+
     // Check if content is exclusive
     if (this.isExclusive(content)) {
       tags.push('Exclusive');
     }
-    
+
     // If no specific availability tag, it's standard
     if (tags.length === 0) {
       tags.push('Standard');
     }
-    
+
     return tags;
   }
 
@@ -43,7 +43,7 @@ export class TagEngine {
    */
   detectBrand(content: Partial<Content>): string[] {
     const brands: string[] = [];
-    
+
     const brandPatterns = {
       'Disney': ['Disney', 'Walt Disney', 'Disney Animation', 'Disney Classics'],
       'Marvel': ['Marvel', 'MCU', 'Avengers', 'Marvel Studios'],
@@ -51,7 +51,7 @@ export class TagEngine {
       'Pixar': ['Pixar', 'Toy Story', 'Finding', 'Incredibles'],
       'National Geographic': ['National Geographic', 'Nat Geo', 'Geography', 'Nature', 'Wildlife'],
     };
-    
+
     // Combine all content text for pattern matching
     const contentText = [
       content.title || '',
@@ -63,14 +63,14 @@ export class TagEngine {
       ...(content.genres || []),
       ...(content.listedIn || [])
     ].join(' ');
-    
+
     // Check for brand patterns
     Object.entries(brandPatterns).forEach(([brand, patterns]) => {
       if (patterns.some(pattern => contentText.toLowerCase().includes(pattern.toLowerCase()))) {
         brands.push(brand);
       }
     });
-    
+
     return brands;
   }
 
@@ -79,7 +79,7 @@ export class TagEngine {
    */
   classifyCategories(content: Partial<Content>): string[] {
     const categories: string[] = [];
-    
+
     // Add age rating categories
     if (content.rating) {
       if (content.rating.includes('G') || content.rating.includes('TV-Y')) {
@@ -90,7 +90,7 @@ export class TagEngine {
         categories.push('Mature');
       }
     }
-    
+
     const categoryPatterns = {
       'Family': ['Family', 'Kids', 'Animation', 'Disney Classics', 'Children', 'Pixar'],
       'Action': ['Action', 'Adventure', 'Superhero', 'Marvel', 'Star Wars', 'Fighting'],
@@ -100,7 +100,7 @@ export class TagEngine {
       'Sci-Fi': ['Sci-Fi', 'Science Fiction', 'Future', 'Space', 'Star Wars', 'Marvel'],
       'Animation': ['Animation', 'Animated', 'Cartoon', 'Pixar', 'Disney Animation']
     };
-    
+
     // Combine all content text for pattern matching
     const contentText = [
       content.title || '',
@@ -108,21 +108,21 @@ export class TagEngine {
       ...(content.genres || []),
       ...(content.franchises || [])
     ].join(' ');
-    
+
     // Check for category patterns
     Object.entries(categoryPatterns).forEach(([category, patterns]) => {
       if (patterns.some(pattern => contentText.toLowerCase().includes(pattern.toLowerCase()))) {
         categories.push(category);
       }
     });
-    
+
     // If content has 'Animation' genre, add Animation category
     if ((content.genres || []).some(genre => genre.toLowerCase() === 'animation')) {
       if (!categories.includes('Animation')) {
         categories.push('Animation');
       }
     }
-    
+
     return categories;
   }
 
@@ -132,7 +132,7 @@ export class TagEngine {
   calculateConfidenceScore(content: Partial<Content>, tags: ContentTags): number {
     let score = 0;
     let maxPossibleScore = 0;
-    
+
     // Brand confidence
     if (tags.brand.length > 0) {
       score += 25;
@@ -142,7 +142,7 @@ export class TagEngine {
       }
     }
     maxPossibleScore += 40;
-    
+
     // Category confidence
     if (tags.category.length > 0) {
       score += 20;
@@ -153,25 +153,25 @@ export class TagEngine {
             category.toLowerCase() === genre.toLowerCase()
           )
         ).length;
-        
+
         if (genreMatchCount > 0) {
           score += Math.min(15, genreMatchCount * 5);
         }
       }
     }
     maxPossibleScore += 35;
-    
+
     // Availability confidence (usually high)
     if (tags.availability.length > 0) {
       score += 20;
     }
     maxPossibleScore += 20;
-    
+
     // Additional metadata points
     if (content.description && content.description.length > 20) score += 3;
     if (content.franchises && content.franchises.length > 0) score += 2;
     maxPossibleScore += 5;
-    
+
     // Calculate percentage
     return Math.min(99, Math.round((score / maxPossibleScore) * 100));
   }
@@ -184,7 +184,7 @@ export class TagEngine {
     const availabilityTags = this.generateAvailabilityTags(content);
     const brandTags = this.detectBrand(content);
     const categoryTags = this.classifyCategories(content);
-    
+
     const tags: ContentTags = {
       availability: availabilityTags,
       brand: brandTags,
@@ -192,10 +192,10 @@ export class TagEngine {
       system: [],
       manual: []
     };
-    
+
     // Calculate confidence score
     const confidenceScore = this.calculateConfidenceScore(content, tags);
-    
+
     return { tags, confidenceScore };
   }
 
@@ -235,7 +235,7 @@ export class TagEngine {
         };
       }
     });
-    
+
     return { results };
   }
 
@@ -246,18 +246,18 @@ export class TagEngine {
     // Logic to determine if content is exclusive
     // Usually original content from Disney+
     const exclusiveKeywords = ['Original', 'Only on Disney+', 'Disney+ Original', 'Exclusive'];
-    
+
     const contentText = [
       content.title || '',
       content.description || '',
       ...(content.franchises || [])
     ].join(' ');
-    
+
     // Check for exclusive keywords
     if (exclusiveKeywords.some(keyword => contentText.includes(keyword))) {
       return true;
     }
-    
+
     // Check if it's a more recent title from certain studios, which are often exclusive
     if (content.releaseYear && content.releaseYear >= 2019) {
       if (content.studio && 
@@ -268,7 +268,7 @@ export class TagEngine {
         return true;
       }
     }
-    
+
     return false;
   }
 }
