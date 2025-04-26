@@ -67,13 +67,20 @@ export class MemStorage implements IStorage {
   private batchIdCounter: number;
 
   constructor() {
+    super();
+    this.initialize();
+  }
+
+  private async initialize() {
     this.users = new Map();
     this.contents = new Map();
     this.batchProcesses = new Map();
     this.userIdCounter = 1;
     this.contentIdCounter = 1;
     this.batchIdCounter = 1;
-    
+  }
+
+  private async initialize() {
     // Load CSV data
     const fs = await import('fs');
     const { parse } = await import('csv-parse/sync');
