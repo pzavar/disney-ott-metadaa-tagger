@@ -20,15 +20,22 @@ export type User = typeof users.$inferSelect;
 // Content schema for Disney+ titles
 export const contents = pgTable("contents", {
   id: serial("id").primaryKey(),
+  showId: text("show_id"),
   title: text("title").notNull(),
   type: text("type").notNull(), // Movie, Series, Short
+  director: text("director"),
+  cast: json("cast").$type<string[]>(),
+  country: text("country"),
   releaseYear: integer("release_year").notNull(),
+  rating: text("rating"),
+  duration: text("duration"),
   description: text("description"),
   addedDate: timestamp("added_date").notNull().defaultNow(),
   expiryDate: timestamp("expiry_date"),
   studio: text("studio"),
   franchises: json("franchises").$type<string[]>(),
   genres: json("genres").$type<string[]>(),
+  listedIn: json("listed_in").$type<string[]>(),
   tags: json("tags").$type<ContentTags>(),
   confidenceScore: integer("confidence_score").default(0), // 0-100
   isReviewed: boolean("is_reviewed").default(false),

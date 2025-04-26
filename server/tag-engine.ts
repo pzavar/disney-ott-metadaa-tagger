@@ -57,8 +57,11 @@ export class TagEngine {
       content.title || '',
       content.description || '',
       content.studio || '',
+      content.director || '',
+      ...(content.cast || []),
       ...(content.franchises || []),
-      ...(content.genres || [])
+      ...(content.genres || []),
+      ...(content.listedIn || [])
     ].join(' ');
     
     // Check for brand patterns
@@ -76,6 +79,17 @@ export class TagEngine {
    */
   classifyCategories(content: Partial<Content>): string[] {
     const categories: string[] = [];
+    
+    // Add age rating categories
+    if (content.rating) {
+      if (content.rating.includes('G') || content.rating.includes('TV-Y')) {
+        categories.push('Kids');
+      } else if (content.rating.includes('PG')) {
+        categories.push('Family');
+      } else if (content.rating.includes('R') || content.rating.includes('TV-MA')) {
+        categories.push('Mature');
+      }
+    }
     
     const categoryPatterns = {
       'Family': ['Family', 'Kids', 'Animation', 'Disney Classics', 'Children', 'Pixar'],
