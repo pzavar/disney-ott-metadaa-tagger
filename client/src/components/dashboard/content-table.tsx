@@ -27,7 +27,7 @@ const ContentTable: React.FC<ContentTableProps> = ({ content, isLoading }) => {
     setShowModal(false);
   };
 
-  const itemsPerPage = 5;
+  const itemsPerPage = 20;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   
