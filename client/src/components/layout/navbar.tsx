@@ -56,12 +56,7 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
             <Bell className="h-6 w-6" />
           </Button>
 
-          <Button 
-            className="bg-[#0063e5] hover:bg-blue-700 px-4 py-2 rounded-md text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0063e5]"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Content
-          </Button>
+          
         </div>
       </div>
     </div>

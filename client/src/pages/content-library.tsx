@@ -13,7 +13,7 @@ const ContentLibrary: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [contentType, setContentType] = useState("all");
   const [filterOpen, setFilterOpen] = useState(false);
-  
+
   // Advanced filter states
   const [filters, setFilters] = useState({
     yearFrom: "",
@@ -26,7 +26,7 @@ const ContentLibrary: React.FC = () => {
   // Add pagination and limit initial data load
   const [page, setPage] = useState(1);
   const limit = 100; // Get first 100 items initially instead of all at once
-  
+
   const { data: content, isLoading } = useQuery<Content[]>({
     queryKey: ["/api/content", { limit, page }],
     queryFn: async () => {
@@ -53,22 +53,22 @@ const ContentLibrary: React.FC = () => {
         // Match content type filter
         const matchesType =
           contentType === "all" || item.type === contentType;
-          
+
         // Match year range filter
         const matchesYearRange = 
           (filters.yearFrom === "" || Number(item.releaseYear) >= Number(filters.yearFrom)) &&
           (filters.yearTo === "" || Number(item.releaseYear) <= Number(filters.yearTo));
-          
+
         // Match brand filter
         const matchesBrand = 
           filters.brand === "all" || 
           item.tags?.brand?.some(tag => tag.toLowerCase() === filters.brand.toLowerCase());
-          
+
         // Match availability filter
         const matchesAvailability = 
           filters.availability === "all" || 
           item.tags?.availability?.some(tag => tag.toLowerCase() === filters.availability.toLowerCase());
-          
+
         // Match category filter
         const matchesCategory = 
           filters.category === "all" || 
@@ -94,9 +94,6 @@ const ContentLibrary: React.FC = () => {
               </p>
             </div>
             <div className="flex space-x-3">
-              <Button className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#0063e5] hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0063e5]">
-                Add New Content
-              </Button>
             </div>
           </div>
 
