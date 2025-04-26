@@ -163,7 +163,7 @@ export class MemStorage implements IStorage {
   async filterContent(options: FilterOptions): Promise<Content[]> {
     return Array.from(this.contents.values()).filter(content => {
       if (options.type && content.type !== options.type) return false;
-      
+
       if (options.releaseYear) {
         if (typeof options.releaseYear === 'number') {
           if (content.releaseYear !== options.releaseYear) return false;
@@ -172,19 +172,19 @@ export class MemStorage implements IStorage {
           if (options.releaseYear.max && content.releaseYear > options.releaseYear.max) return false;
         }
       }
-      
+
       if (options.studio && content.studio !== options.studio) return false;
-      
+
       if (options.brand && !content.tags.brand.includes(options.brand)) return false;
-      
+
       if (options.availability && !content.tags.availability.includes(options.availability)) return false;
-      
+
       if (options.category && !content.tags.category.includes(options.category)) return false;
-      
+
       if (options.isReviewed !== undefined && content.isReviewed !== options.isReviewed) return false;
-      
+
       if (options.confidenceScoreMin !== undefined && content.confidenceScore < options.confidenceScoreMin) return false;
-      
+
       return true;
     })
     .slice(options.offset || 0, (options.offset || 0) + (options.limit || Infinity));
@@ -193,7 +193,7 @@ export class MemStorage implements IStorage {
   async createContent(insertContent: InsertContent): Promise<Content> {
     const id = this.contentIdCounter++;
     const now = new Date();
-    
+
     const content: Content = {
       ...insertContent,
       id,
@@ -202,12 +202,12 @@ export class MemStorage implements IStorage {
       isReviewed: insertContent.isReviewed || false,
       confidenceScore: insertContent.confidenceScore || 0,
     };
-    
+
     this.contents.set(id, content);
-    
+
     // Update stats
     await this.updateStats();
-    
+
     return content;
   }
 
@@ -222,10 +222,10 @@ export class MemStorage implements IStorage {
     };
 
     this.contents.set(id, updatedContent);
-    
+
     // Update stats
     await this.updateStats();
-    
+
     return updatedContent;
   }
 
@@ -240,21 +240,21 @@ export class MemStorage implements IStorage {
     };
 
     this.contents.set(id, updatedContent);
-    
+
     // Update stats
     await this.updateStats();
-    
+
     return updatedContent;
   }
 
   async deleteContent(id: number): Promise<boolean> {
     const deleted = this.contents.delete(id);
-    
+
     if (deleted) {
       // Update stats
       await this.updateStats();
     }
-    
+
     return deleted;
   }
 
@@ -280,11 +280,11 @@ export class MemStorage implements IStorage {
         brandCounts[brand] = (brandCounts[brand] || 0) + 1;
       });
     });
-    
+
     // Convert counts to percentages
     const brandDistribution: {[key: string]: number} = {};
     const brandTotal = Object.values(brandCounts).reduce((sum, count) => sum + count, 0);
-    
+
     Object.entries(brandCounts).forEach(([brand, count]) => {
       brandDistribution[brand] = Math.round((count / (brandTotal || 1)) * 100);
     });
@@ -296,11 +296,11 @@ export class MemStorage implements IStorage {
         availabilityCounts[availability] = (availabilityCounts[availability] || 0) + 1;
       });
     });
-    
+
     // Convert counts to percentages
     const availabilityDistribution: {[key: string]: number} = {};
     const availabilityTotal = Object.values(availabilityCounts).reduce((sum, count) => sum + count, 0);
-    
+
     Object.entries(availabilityCounts).forEach(([availability, count]) => {
       availabilityDistribution[availability] = Math.round((count / (availabilityTotal || 1)) * 100);
     });
@@ -312,11 +312,11 @@ export class MemStorage implements IStorage {
         categoryCounts[category] = (categoryCounts[category] || 0) + 1;
       });
     });
-    
+
     // Convert counts to percentages
     const categoryDistribution: {[key: string]: number} = {};
     const categoryTotal = Object.values(categoryCounts).reduce((sum, count) => sum + count, 0);
-    
+
     Object.entries(categoryCounts).forEach(([category, count]) => {
       categoryDistribution[category] = Math.round((count / (categoryTotal || 1)) * 100);
     });
@@ -351,7 +351,7 @@ export class MemStorage implements IStorage {
       completedAt: null,
       options
     };
-    
+
     this.batchProcesses.set(id, batchProcess);
     return batchProcess;
   }
@@ -486,14 +486,14 @@ export class MemStorage implements IStorage {
       const now = new Date();
       const oneMonthAgo = new Date();
       oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-      
+
       const fullContent: Content = {
         ...content,
         id,
         addedDate: content.title === "Loki" ? oneMonthAgo : new Date(now.setDate(now.getDate() - Math.floor(Math.random() * 60))),
         lastUpdated: new Date()
       };
-      
+
       this.contents.set(id, fullContent);
     });
 
@@ -527,23 +527,23 @@ export class MemStorage implements IStorage {
       const studioIndex = Math.floor(Math.random() * studios.length);
       const typeIndex = Math.floor(Math.random() * types.length);
       const yearIndex = Math.floor(Math.random() * years.length);
-      
+
       const title = `${titlePrefixes[Math.floor(Math.random() * titlePrefixes.length)]} ${titleSuffixes[Math.floor(Math.random() * titleSuffixes.length)]} ${i + 1}`;
       const id = this.contentIdCounter++;
       const now = new Date();
-      
+
       // Random date in the last 6 months
       const randomDate = new Date(now.setDate(now.getDate() - Math.floor(Math.random() * 180)));
-      
+
       // Some titles should be expiring soon
       const isExpiringSoon = Math.random() < 0.1;
       const expiryDate = isExpiringSoon 
         ? new Date(new Date().setMonth(new Date().getMonth() + 1)) 
         : null;
-      
+
       const isNewArrival = !isExpiringSoon && Math.random() < 0.15;
       const isExclusive = !isExpiringSoon && !isNewArrival && Math.random() < 0.07;
-      
+
       const availability = isExpiringSoon 
         ? ["Leaving Soon"] 
         : isNewArrival 
@@ -551,11 +551,11 @@ export class MemStorage implements IStorage {
           : isExclusive 
             ? ["Exclusive"] 
             : ["Standard"];
-      
+
       const studio = studios[studioIndex];
       const brand = brands[studioIndex];
       const brandTags = brand ? [brand] : [];
-      
+
       const content: Content = {
         id,
         title,
@@ -578,7 +578,7 @@ export class MemStorage implements IStorage {
         isReviewed: Math.random() > 0.2, // 80% reviewed
         lastUpdated: new Date()
       };
-      
+
       this.contents.set(id, content);
     }
 
