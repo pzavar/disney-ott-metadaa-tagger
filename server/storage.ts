@@ -73,6 +73,44 @@ export class MemStorage implements IStorage {
     this.userIdCounter = 1;
     this.contentIdCounter = 1;
     this.batchIdCounter = 1;
+    
+    // Load CSV data
+    const fs = require('fs');
+    const { parse } = require('csv-parse/sync');
+    
+    try {
+      const csvData = fs.readFileSync('attached_assets/disney_plus_titles.csv');
+      const records = parse(csvData, { columns: true });
+      
+      records.forEach((record: any) => {
+        const content = {
+          id: this.contentIdCounter++,
+          title: record.title,
+          type: record.type.toLowerCase(),
+          releaseYear: parseInt(record.release_year),
+          description: record.description,
+          studio: record.director || null,
+          addedDate: record.date_added ? new Date(record.date_added) : new Date(),
+          expiryDate: null,
+          franchises: [],
+          genres: record.listed_in ? record.listed_in.split(',').map((g: string) => g.trim()) : [],
+          tags: {
+            brand: [],
+            availability: ['Standard'],
+            category: record.listed_in ? record.listed_in.split(',').map((g: string) => g.trim()) : [],
+            system: [],
+            manual: []
+          },
+          confidenceScore: 85,
+          isReviewed: false,
+          lastUpdated: new Date()
+        };
+        
+        this.contents.set(content.id, content);
+      });
+    } catch (error) {
+      console.error('Error loading CSV:', error);
+    }
 
     // Initialize default stats
     this.statsData = {
