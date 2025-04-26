@@ -16,20 +16,18 @@ interface NavItemProps {
 }
 
 const NavItem: React.FC<NavItemProps> = ({ href, icon, children, isActive }) => {
+  const linkClass = cn(
+    "flex items-center px-4 py-3 text-base font-medium rounded-md",
+    isActive
+      ? "bg-gray-800 text-white"
+      : "text-gray-300 hover:bg-gray-700 hover:text-white"
+  );
+
   return (
-    <Link href={href}>
-      <a
-        className={cn(
-          "flex items-center px-4 py-3 text-base font-medium rounded-md",
-          isActive
-            ? "bg-gray-800 text-white"
-            : "text-gray-300 hover:bg-gray-700 hover:text-white"
-        )}
-      >
-        <div className="mr-3 h-5 w-5">{icon}</div>
-        {children}
-      </a>
-    </Link>
+    <div className={linkClass} onClick={() => window.location.href = href}>
+      <div className="mr-3 h-5 w-5">{icon}</div>
+      {children}
+    </div>
   );
 };
 
