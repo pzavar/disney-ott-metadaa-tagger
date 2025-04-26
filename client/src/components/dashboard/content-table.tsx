@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import TagBadge from "@/components/tags/tag-badge";
 import { Content } from "@shared/schema";
 import ContentDetailModal from "./content-detail-modal";
+import { FixedSizeList as List } from "react-window";
 
 interface ContentTableProps {
   content: Content[];
@@ -35,6 +36,85 @@ const ContentTable: React.FC<ContentTableProps> = ({ content, isLoading }) => {
   const paginatedContent = filteredContent.slice(startIndex, endIndex);
   const totalPages = Math.ceil(filteredContent.length / itemsPerPage);
 
+  // Create a ref to measure the container width for virtualized list
+  const listContainerRef = useRef<HTMLDivElement>(null);
+  const [listWidth, setListWidth] = useState(0);
+  
+  // Update width on mount and window resize
+  useEffect(() => {
+    const updateWidth = () => {
+      if (listContainerRef.current) {
+        setListWidth(listContainerRef.current.offsetWidth);
+      }
+    };
+    
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
+  
+  // Row renderer for virtualized list
+  const renderRow = ({ index, style }: { index: number; style: React.CSSProperties }) => {
+    const item = filteredContent[index];
+    if (!item) return null;
+    
+    return (
+      <div style={style} key={item.id} className="border-b border-gray-200">
+        <div className="px-4 py-4 sm:px-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 h-16 w-12 overflow-hidden rounded-md bg-gray-200">
+                <div className="h-full w-full flex items-center justify-center text-gray-400">
+                  {item.type.charAt(0).toUpperCase()}
+                </div>
+              </div>
+              <div className="ml-4">
+                <div className="text-sm font-medium text-[#0063e5]">{item.title}</div>
+                <div className="text-xs text-gray-500">
+                  {item.type.charAt(0).toUpperCase() + item.type.slice(1)} • {item.releaseYear}
+                  {item.type === "series" && " • 1 Season"}
+                </div>
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {item.tags?.brand?.slice(0, 1).map((tag, idx) => (
+                    <TagBadge key={`brand-${idx}`} tag={tag} type="brand" />
+                  ))}
+                  {item.tags?.availability?.slice(0, 1).map((tag, idx) => (
+                    <TagBadge key={`avail-${idx}`} tag={tag} type="availability" />
+                  ))}
+                  {item.tags?.category?.slice(0, 1).map((tag, idx) => (
+                    <TagBadge key={`cat-${idx}`} tag={tag} type="category" />
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col items-end">
+              <div className="text-xs text-gray-500 mb-1">
+                Auto-tagged • {item.confidenceScore}% confidence
+              </div>
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0063e5]"
+                  onClick={() => handleViewDetails(item)}
+                >
+                  Edit Tags
+                </Button>
+                <Button
+                  size="sm"
+                  className="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-[#0063e5] hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0063e5]"
+                  onClick={() => handleViewDetails(item)}
+                >
+                  View Details
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="mt-8">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
@@ -65,7 +145,7 @@ const ContentTable: React.FC<ContentTableProps> = ({ content, isLoading }) => {
         </div>
       </div>
 
-      <div className="bg-white shadow overflow-hidden sm:rounded-md">
+      <div className="bg-white shadow overflow-hidden sm:rounded-md" ref={listContainerRef}>
         {isLoading ? (
           <div className="py-10 flex justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0063e5]"></div>
@@ -75,63 +155,14 @@ const ContentTable: React.FC<ContentTableProps> = ({ content, isLoading }) => {
             <p className="text-gray-500">No content available</p>
           </div>
         ) : (
-          <ul className="divide-y divide-gray-200">
-            {paginatedContent.map((item) => (
-              <li key={item.id}>
-                <div className="px-4 py-4 sm:px-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-16 w-12 overflow-hidden rounded-md bg-gray-200">
-                        <div className="h-full w-full flex items-center justify-center text-gray-400">
-                          {item.type.charAt(0).toUpperCase()}
-                        </div>
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-[#0063e5]">{item.title}</div>
-                        <div className="text-xs text-gray-500">
-                          {item.type.charAt(0).toUpperCase() + item.type.slice(1)} • {item.releaseYear}
-                          {item.type === "series" && " • 1 Season"}
-                        </div>
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {item.tags?.brand?.slice(0, 1).map((tag, idx) => (
-                            <TagBadge key={`brand-${idx}`} tag={tag} type="brand" />
-                          ))}
-                          {item.tags?.availability?.slice(0, 1).map((tag, idx) => (
-                            <TagBadge key={`avail-${idx}`} tag={tag} type="availability" />
-                          ))}
-                          {item.tags?.category?.slice(0, 1).map((tag, idx) => (
-                            <TagBadge key={`cat-${idx}`} tag={tag} type="category" />
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <div className="text-xs text-gray-500 mb-1">
-                        Auto-tagged • {item.confidenceScore}% confidence
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0063e5]"
-                          onClick={() => handleViewDetails(item)}
-                        >
-                          Edit Tags
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-[#0063e5] hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0063e5]"
-                          onClick={() => handleViewDetails(item)}
-                        >
-                          View Details
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <List
+            height={Math.min(500, filteredContent.length * 100)} // Limit max height
+            width={listWidth || 300}
+            itemCount={filteredContent.length}
+            itemSize={100} // Approximate height of each row
+          >
+            {renderRow}
+          </List>
         )}
         <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
           <div className="flex-1 flex justify-between sm:hidden">

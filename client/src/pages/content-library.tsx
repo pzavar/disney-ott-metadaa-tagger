@@ -23,8 +23,17 @@ const ContentLibrary: React.FC = () => {
     category: "all"
   });
 
+  // Add pagination and limit initial data load
+  const [page, setPage] = useState(1);
+  const limit = 100; // Get first 100 items initially instead of all at once
+  
   const { data: content, isLoading } = useQuery<Content[]>({
-    queryKey: ["/api/content"],
+    queryKey: ["/api/content", { limit, page }],
+    queryFn: async () => {
+      const response = await fetch(`/api/content?limit=${limit}&page=${page}`);
+      if (!response.ok) throw new Error('Failed to fetch content');
+      return response.json();
+    },
   });
 
   // Filter content based on search query, content type, and advanced filters

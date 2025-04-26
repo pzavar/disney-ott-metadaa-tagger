@@ -17,14 +17,22 @@ interface NavItemProps {
 
 const NavItem: React.FC<NavItemProps> = ({ href, icon, children, isActive }) => {
   const linkClass = cn(
-    "flex items-center px-4 py-3 text-base font-medium rounded-md",
+    "flex items-center px-4 py-3 text-base font-medium rounded-md cursor-pointer",
     isActive
       ? "bg-gray-800 text-white"
       : "text-gray-300 hover:bg-gray-700 hover:text-white"
   );
+  
+  // Get navigate function from wouter
+  const [_, navigate] = useLocation();
 
   return (
-    <div className={linkClass} onClick={() => window.location.href = href}>
+    <div 
+      className={linkClass} 
+      onClick={() => navigate(href)}
+      role="button"
+      tabIndex={0}
+    >
       <div className="mr-3 h-5 w-5">{icon}</div>
       {children}
     </div>
