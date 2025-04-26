@@ -15,28 +15,6 @@ const Dashboard: React.FC = () => {
     queryKey: ["/api/stats"],
   });
 
-  const { data: content, isLoading: contentLoading } = useQuery<Content[]>({
-    queryKey: ["/api/content/recent"],
-  });
-  
-  // Filter content based on search query
-  const filteredContent = React.useMemo(() => {
-    if (!content) return [];
-    if (!searchQuery) return content;
-    
-    const query = searchQuery.toLowerCase();
-    return content.filter((item) => {
-      return (
-        item.title.toLowerCase().includes(query) ||
-        item.type.toLowerCase().includes(query) ||
-        (item.studio && item.studio.toLowerCase().includes(query)) ||
-        (item.tags && item.tags.brand && item.tags.brand.some(tag => tag.toLowerCase().includes(query))) ||
-        (item.tags && item.tags.availability && item.tags.availability.some(tag => tag.toLowerCase().includes(query))) ||
-        (item.tags && item.tags.category && item.tags.category.some(tag => tag.toLowerCase().includes(query)))
-      );
-    });
-  }, [content, searchQuery]);
-
   return (
     <>
       {/* Page header */}
@@ -146,12 +124,6 @@ const Dashboard: React.FC = () => {
 
         {/* Tag Distribution Chart */}
         <TagDistributionChart />
-
-        {/* Recent Content Table */}
-        <ContentTable
-          content={filteredContent || []}
-          isLoading={contentLoading}
-        />
       </div>
     </>
   );
