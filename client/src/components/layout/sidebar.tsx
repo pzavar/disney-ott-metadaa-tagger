@@ -5,8 +5,6 @@ import DisneyLogo from "@/components/ui/disney-logo";
 import {
   Home,
   Film,
-  Layers,
-  Code,
   Settings,
 } from "lucide-react";
 
@@ -60,20 +58,6 @@ const Sidebar: React.FC = () => {
             isActive={location === "/content-library"}
           >
             Content Library
-          </NavItem>
-          <NavItem
-            href="/batch-processing"
-            icon={<Layers />}
-            isActive={location === "/batch-processing"}
-          >
-            Batch Processing
-          </NavItem>
-          <NavItem
-            href="/api-services"
-            icon={<Code />}
-            isActive={location === "/api-services"}
-          >
-            API Services
           </NavItem>
           <NavItem
             href="/settings"
