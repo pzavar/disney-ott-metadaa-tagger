@@ -75,8 +75,8 @@ export class MemStorage implements IStorage {
     this.batchIdCounter = 1;
     
     // Load CSV data
-    const fs = require('fs');
-    const { parse } = require('csv-parse/sync');
+    import fs from 'fs';
+    import { parse } from 'csv-parse/sync';
     
     try {
       const csvData = fs.readFileSync('attached_assets/disney_plus_titles.csv');
