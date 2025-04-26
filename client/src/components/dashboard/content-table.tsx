@@ -118,7 +118,7 @@ const ContentTable: React.FC<ContentTableProps> = ({ content, isLoading }) => {
   return (
     <div className="mt-8">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
-        <h3 className="text-lg leading-6 font-medium text-gray-900 mb-2 sm:mb-0">Recent Content</h3>
+        <h3 className="text-lg leading-6 font-medium text-gray-900 mb-2 sm:mb-0">All Titles</h3>
         <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
           <Select value={contentType} onValueChange={setContentType}>
             <SelectTrigger className="w-full sm:w-40">
