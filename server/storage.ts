@@ -78,6 +78,19 @@ export class MemStorage implements IStorage {
     this.contentIdCounter = 1;
     this.batchIdCounter = 1;
     
+    // Initialize statsData with default values first (this will be overridden later)
+    this.statsData = {
+      id: 1,
+      totalContent: 0,
+      taggedContent: 0,
+      pendingReview: 0,
+      taggingAccuracy: 0,
+      brandDistribution: {},
+      availabilityDistribution: {},
+      categoryDistribution: {},
+      lastUpdated: new Date()
+    };
+    
     // Load CSV data
     const fs = await import('fs');
     const { parse } = await import('csv-parse/sync');
